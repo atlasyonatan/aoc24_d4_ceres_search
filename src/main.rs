@@ -19,11 +19,31 @@ fn main() {
         (-1, 1),
     ];
 
-    let result = word_search_amount(arr, &pattern, &directions);
+    let result = word_search_pattern_amount(&arr, &pattern, &directions);
     println!("part 1: {}", result);
+
+    let str_patterns = vec!["M.S.A.M.S", "M.M.A.S.S", "S.M.A.S.M", "S.S.A.M.M"];
+
+    let result: u32 = str_patterns
+        .into_iter()
+        .map(|p| {
+            p.chars().map(|c| match c {
+                '.' => None,
+                _ => Some(c),
+            })
+        })
+        .map(|p| Array2D::from_iter_row_major(p, 3, 3).unwrap())
+        .map(|p| word_search_pattern2d_amount(&arr, &p))
+        .sum();
+
+    println!("part 2: {}", result);
 }
 
-fn word_search_amount(arr: Array2D<char>, pattern: &str, directions: &[(isize, isize)]) -> u32 {
+fn word_search_pattern_amount(
+    arr: &Array2D<char>,
+    pattern: &str,
+    directions: &[(isize, isize)],
+) -> u32 {
     let pattern_start = pattern.chars().next().unwrap();
 
     let mut result = 0;
@@ -59,5 +79,28 @@ fn word_search_amount(arr: Array2D<char>, pattern: &str, directions: &[(isize, i
             result += 1;
         }
     }
+    return result;
+}
+
+fn word_search_pattern2d_amount(arr: &Array2D<char>, pattern: &Array2D<Option<char>>) -> u32 {
+    let mut result = 0;
+    for row in 0..(arr.column_len() - pattern.column_len()) {
+        'col: for column in 0..(arr.row_len() - pattern.row_len()) {
+            for (pattern_row, pattern_column) in pattern.indices_row_major() {
+                let pattern_char = match pattern.get(pattern_row, pattern_column).unwrap() {
+                    None => continue,
+                    Some(c) => *c,
+                };
+
+                let (arr_row, arr_column) = (row + pattern_row, column + pattern_column);
+                if *arr.get(arr_row, arr_column).unwrap() != pattern_char {
+                    continue 'col;
+                }
+            }
+
+            result += 1;
+        }
+    }
+
     return result;
 }
