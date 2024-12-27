@@ -20,6 +20,10 @@
                 }
             },
             "args": [],
+            "stdio": [
+                "../example3.txt",
+                "../output.txt"
+            ],
             "cwd": "${workspaceFolder}"
         },
         {
